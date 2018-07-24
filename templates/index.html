@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+    <head>
+        <title>Project2:Chatterbox</title>
+        <meta charset="utf-8"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" integrity="sha384-WskhaSGFgHYWDcbwN70/dfYBj47jz9qbsMId/iRN3ewGhXQFZCSftd1LZCfmhktB" crossorigin="anonymous">
+<!--------------------------------------------------------------------------------------------------------------->
+        <!-- Scripts -->
+        <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js" integrity="sha384-smHYKdLADwkXOn1EmN1qk/HfnUcbVRZyYmZ4qpPea6sjB/pTJ0euyQp0Mk8ck+5T" crossorigin="anonymous"></script>
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='stylesheet.css') }}">
+        <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/1.3.6/socket.io.min.js"></script>
+        <script src="{{ url_for('static', filename='index.js') }}"></script>
+<!--------------------------------------------------------------------------------------------------------------->
+    </head>
+<!--------------------------------------------------------------------------------------------------------------->
+    <body>
+        <!-- Ask for  username modal -->
+        <!-- From Bootstrap Documentation -->
+        <div class="modal fade" id="username_modal" tabindex="-1" role="dialog">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Enter a username</h5>
+                    </div>
+                    <div class="modal-body">
+                        <input autocomplete="off" name="username" id="username" type="text"/>
+                        <small id="username_help" class="form-text text-muted">
+                           You cannot change this username
+                        </small>
+                        <p id="username_validation" class="validation_message"></p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" id="username_button">Start chatting</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+ <!--------------------------------------------------------------------------------------------------------------->
+
+        <!-- Header-->
+        <div class="jumbotron">
+            <h2 class="display-4" id="welcome"></h2>
+              <form class="form-inline ml-auto">
+
+
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text" id="basic-addon1">t/ </span>
+                        </div>
+                        <input autocomplete="off" class="form-control mr-sm-2" id="channel_name" type="text" placeholder="Channel name">
+                    </div>
+                    <button type="button" class="btn btn-secondary my-2 my-sm-0" id="create_channel">Create your own thread</button>
+                </form>
+                         <a id="channel_name_validation" class="validation_message">
+                             <!-- Alert comes here-->
+                         </a>
+        </div>
+
+<!--------------------------------------------------------------------------------------------------------------->
+        <!-- Navbar for channels -->
+        <!-- Navbar:Each channel list is a link -->
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <div class="navbar-collapse">
+                <ul class="nav nav-bar" id="channel_list">
+                    {% for channel in channel_list %}
+                        <li class="nav-item"><a class="nav-link channel_menu" data-channel="{{ channel }}">/{{ channel }}</a></li>
+                    {% endfor %}
+               </ul>
+            </div>
+        </nav>
+<!--------------------------------------------------------------------------------------------------------------->
+        <!-- Channel messages-->
+        <div>
+            <h3 id="channel_title">The messages will appear heres</h3>
+            <h5 id="title_message">Chat starts here:</h5>
+            <div id="message_div">
+                <ul id="channel_messages">
+                </ul>
+            </div>
+        </div>
+<!--------------------------------------------------------------------------------------------------------------->
+        <!-- Message input form  -->
+        <div class="fixed-bottom" id="message_input" style="display: none">
+            <form class="ml-auto input-group">
+                <input autocomplete="off" class="form-control" id="message" type="text" placeholder="Type your message">
+                <div class="input-group-append">
+                    <button class="btn btn-dark" type="button" id="send_message">Send Message</button>
+                </div>
+            </form>
+        </div>
+<!--------------------------------------------------------------------------------------------------------------->
+    </body>
+
+</html>
