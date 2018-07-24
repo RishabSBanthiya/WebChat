@@ -21,7 +21,7 @@
     <body>
         <!-- Ask for  username modal -->
         <!-- From Bootstrap Documentation -->
-        <div class="modal fade" id="username_modal" tabindex="-1" role="dialog">
+        <div class="modal fade" id="lightbox" tabindex="-1" role="dialog">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -32,10 +32,10 @@
                         <small id="username_help" class="form-text text-muted">
                            You cannot change this username
                         </small>
-                        <p id="username_validation" class="validation_message"></p>
+                        <p id="checkuser" class="validation_message"></p>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" id="username_button">Start chatting</button>
+                        <button type="button" class="btn btn-secondary" id="lightboxbutton">Start chatting</button>
                     </div>
                 </div>
             </div>
@@ -52,11 +52,11 @@
                         <div class="input-group-prepend">
                             <span class="input-group-text" id="basic-addon1">t/ </span>
                         </div>
-                        <input autocomplete="off" class="form-control mr-sm-2" id="channel_name" type="text" placeholder="Channel name">
+                        <input autocomplete="off" class="form-control mr-sm-2" id="thread" type="text" placeholder="Channel name">
                     </div>
-                    <button type="button" class="btn btn-secondary my-2 my-sm-0" id="create_channel">Create your own thread</button>
+                    <button type="button" class="btn btn-secondary my-2 my-sm-0" id="start_thread">Create your own thread</button>
                 </form>
-                         <a id="channel_name_validation" class="validation_message">
+                         <a id="threadnamecheck" class="validation_message">
                              <!-- Alert comes here-->
                          </a>
         </div>
@@ -89,7 +89,7 @@
             <form class="ml-auto input-group">
                 <input autocomplete="off" class="form-control" id="message" type="text" placeholder="Type your message">
                 <div class="input-group-append">
-                    <button class="btn btn-dark" type="button" id="send_message">Send Message</button>
+                    <button class="btn btn-dark" type="button" id="submit_post">Send Message</button>
                 </div>
             </form>
         </div>

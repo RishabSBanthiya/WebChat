@@ -4,38 +4,35 @@ document.addEventListener('DOMContentLoaded', () => {
     // Connect to websocket
     socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port);
 //-----------------------------------------------------------------------------------------------------------//
-
     // Get username from local storage.
     var username = localStorage.getItem('username');
 
     // Prompts user to enter a username if not already stored
     if (!username) {
-        username_modal();
-
-
+        lightbox();
     } else {
         document.querySelector('#welcome').innerHTML = `User:@${username}`;
     }
-
     if (localStorage.getItem('current_channel')) {
-        change_channel(localStorage.getItem('current_channel'));
+        switchthread(localStorage.getItem('current_channel'));
     }
 //-----------------------------------------------------------------------------------------------------------//
-    // Calling function create_channel
-    document.querySelector('#create_channel').onclick = () => {
-        create_channel();
+    // Calling function start_thread
+    document.querySelector('#start_thread').onclick = () => {
+        start_thread();
     };
 //-----------------------------------------------------------------------------------------------------------//
-    // When name repeats show alert
-    socket.on('channel_exists', () => {
-        document.querySelector('#channel_name_validation').innerHTML = ' Channel name already in use.';
-    });
- //-----------------------------------------------------------------------------------------------------------//
-    // New channel
+   // New channel
     socket.on('channels', channel_name => {
         channel_broadcasted(channel_name);
     });
- //-----------------------------------------------------------------------------------------------------------//
+//-----------------------------------------------------------------------------------------------------------//
+
+    // When name repeats show alert
+    socket.on('channel_exists', () => {
+        document.querySelector('#threadnamecheck').innerHTML = ' Channel name already in use.';
+    });
+//-----------------------------------------------------------------------------------------------------------//
     // Displays a list of all thread names as links
     document.querySelectorAll('.channel_menu').forEach(link => {
         link.onclick = () => {
@@ -45,28 +42,48 @@ document.addEventListener('DOMContentLoaded', () => {
             localStorage.setItem('current_channel', channel_name);
 
             // Change the displayed title and messages.
-            change_channel(channel_name);
+            switchthread(channel_name);
         };
     });
 //-----------------------------------------------------------------------------------------------------------//
-
-
-    // Send message.
-    document.querySelector('#send_message').onclick = () => {
-        send_message();
+    // Allows users to send the message in the form
+    document.querySelector('#submit_post').onclick = () => {
+        submit_post();
     };
 
 
-    // When a new message is broadcasted.
+    // Broadcast new message.
     socket.on('new_message', (data) => {
         message_broadcasted(data);
     });
 
-    // When messages are broadcasted.
-    socket.on('show_messages', (data) => {
-        show_messages(data);
+    // When channels are switched show all the messages again
+    socket.on('displayposts', (data) => {
+        displayposts(data);
     });
 });
+//-----------------------------------------------------------------------------------------------------------//
+// Pops open a lightbox for the user.
+function lightbox() {
+
+    // Prevents closing of modal
+    $('#lightbox').modal({backdrop: 'static', keyboard: false, show: true});
+
+    // Get username from user and close modal
+    document.querySelector('#lightboxbutton').onclick = () => {
+
+        const username = document.querySelector('#username').value;
+        // Ensure user has filled in username that is entered
+        if (!username) {
+            document.querySelector('#checkuser').innerHTML = 'Username is invalid';
+        }  else {
+            // Username saved locally
+            localStorage.setItem('username', username);
+            $('#lightbox').modal('hide');
+            document.querySelector('#welcome').innerHTML = `Welcome to chatterbox ${username}!`
+        }
+    };
+}
 //-----------------------------------------------------------------------------------------------------------//
 function hide(hidemessage)
 {
@@ -76,8 +93,8 @@ function hide(hidemessage)
 
 }
 //-----------------------------------------------------------------------------------------------------------//
-// Display the channel (title and messages) of the channel that is passed as parameter.
-function change_channel(channel_name) {
+// Show the thread title and thread messages
+function switchthread(channel_name) {
 
     // Change the displayed title.
     const channel_title = document.querySelector('#channel_title');
@@ -87,14 +104,14 @@ function change_channel(channel_name) {
     document.querySelector('#channel_messages').innerHTML = '';
 
     // Ask server for messages.
-    socket.emit('show_messages', {'channel_name': channel_name});
+    socket.emit('displayposts', {'channel_name': channel_name});
 
     // Show input field.
     document.querySelector('#message_input').style.display = "block";
 }
 //-----------------------------------------------------------------------------------------------------------//
 // Show all messages that were sent to a channel.
-function show_messages (messages) {
+function displayposts (messages) {
 
     messages.forEach(message => {
 
@@ -102,20 +119,38 @@ function show_messages (messages) {
     });
 }
 //-----------------------------------------------------------------------------------------------------------//
-// When user clicks the 'create channel' button, validate the channel name and emit the new channel.
-function create_channel() {
+// Add a message with timestamp, username and content to the message list.
+function append_message(message) {
+
+    // Format the time.
+    const time = new Date(message['timestamp']);
+    const options = {hour: 'numeric', minute: 'numeric', day: 'numeric', month: 'short'};
+    const time_formatted = time.toLocaleString('en-GB', options);
+
+    // Create new list item.
+    const this_message = document.createElement('li');
+    this_message.setAttribute('id',`${message['message']}`);
+    this_message.innerHTML = ` @${message['username']} : ${message['message']} ${time_formatted} <button id='hide' onclick='hide(${message['message']})'>Hide</button>`;
+
+    // Append to channel list.
+    var list = document.querySelector('#channel_messages');
+    list.appendChild(this_message);
+}
+//-----------------------------------------------------------------------------------------------------------//
+// When user clicks the 'create channel' button, check channel name and emit.
+function start_thread() {
 
     // Remove validation message.
-    document.querySelector('#channel_name_validation').innerHTML = '';
+    document.querySelector('#threadnamecheck').innerHTML = '';
 
     // Save channel name.
     const channel_name = document.querySelector('#channel_name').value;
 
-    // Validate channel name.
+    // Check channel name.
     if (!channel_name) {
-            document.querySelector('#channel_name_validation').innerHTML = ' Enter a channel name.';
+            document.querySelector('#threadnamecheck').innerHTML = ' Enter a channel name.';
     } else if (channel_name.length < 0) {
-            document.querySelector('#channel_name_validation').innerHTML = ' Channel name needs to be at least 0 characters.';
+            document.querySelector('#threadnamecheck').innerHTML = ' Channel name needs to be at least 0 characters.';
     } else {
         // Empty input field.
         document.querySelector('#channel_name').value = '';
@@ -143,7 +178,7 @@ function channel_broadcasted(channel_name) {
 }
 //-----------------------------------------------------------------------------------------------------------//
 // Send a message in the current channel when user clicks 'send'.
-function send_message() {
+function submit_post() {
 
     // Get message, username and current channel.
     const message = document.querySelector('#message').value;
@@ -168,50 +203,4 @@ function message_broadcasted(message) {
 
         append_message(message);
     }
-}
-//-----------------------------------------------------------------------------------------------------------//
-// Add a message with timestamp, username and content to the message list.
-function append_message(message) {
-
-    // Format the time.
-    const time = new Date(message['timestamp']);
-    const options = {hour: 'numeric', minute: 'numeric', day: 'numeric', month: 'short'};
-    const time_formatted = time.toLocaleString('en-GB', options);
-
-    // Create new list item.
-    const this_message = document.createElement('li');
-    this_message.setAttribute('id',`${message['message']}`);
-    this_message.innerHTML = ` @${message['username']} : ${message['message']} ${time_formatted} <button id='hide' onclick='hide(${message['message']})'>Hide</button>`;
-
-    // Append to channel list.
-    var list = document.querySelector('#channel_messages');
-    list.appendChild(this_message);
-}
-//-----------------------------------------------------------------------------------------------------------//
-
-// Pops open a lightbox for the user.
-function username_modal() {
-
-    // Prevents closing of modal
-    $('#username_modal').modal({backdrop: 'static', keyboard: false, show: true});
-
-    // Get username from user and close modal
-    document.querySelector('#username_button').onclick = () => {
-
-        const username = document.querySelector('#username').value;
-
-        // Ensure user has filled in username that is entered
-        if (!username) {
-            document.querySelector('#username_validation').innerHTML = 'Username is invalid';
-        }  else {
-
-            // Username saved locally
-            localStorage.setItem('username', username);
-            $('#username_modal').modal('hide');
-            document.querySelector('#welcome').innerHTML = `Welcome to chatterbox ${username}!`
-
-        }
-
-
-    };
 }

@@ -19,7 +19,7 @@ def index():
 @socketio.on("newchannel")
 def newchannel(data):
 
-    new_channel = data["channel_name"]
+    new_channel = data["thread"]
 
     # Check if new channel name doesn't already exist.
     if new_channel in channels:
@@ -50,11 +50,11 @@ def message(data):
     emit("new_message", data, broadcast=True)
 
 #-------------------------------------------------------------------
-@socketio.on("show_messages")
-def show_messages(data):
+@socketio.on("displayposts")
+def displayposts(data):
 
     # Get stored messages.
-    messages = channels[data["channel_name"]]
-    emit("show_messages", messages)
+    messages = channels[data["thread"]]
+    emit("displayposts", messages)
 
 #-------------------------------------------------------------------
