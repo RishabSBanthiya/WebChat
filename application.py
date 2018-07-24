@@ -8,7 +8,7 @@ app.config["SECRET_KEY"] = os.getenv("SECRET_KEY")
 socketio = SocketIO(app)
 
 # Dictionary with all channels and messages.
-channels = {'All': [{"hey:bye"}]}
+channels = {'All': []}
 
 @app.route("/")
 #Landing page

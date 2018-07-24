@@ -70,8 +70,10 @@ document.addEventListener('DOMContentLoaded', () => {
 //-----------------------------------------------------------------------------------------------------------//
 function hide(hidemessage)
 {
+  const username = localStorage.getItem('username');
   const current_channel = localStorage.getItem('current_channel');
   hidemessage.remove()
+
 }
 //-----------------------------------------------------------------------------------------------------------//
 // Display the channel (title and messages) of the channel that is passed as parameter.
@@ -179,7 +181,7 @@ function append_message(message) {
     // Create new list item.
     const this_message = document.createElement('li');
     this_message.setAttribute('id',`${message['message']}`);
-    this_message.innerHTML = ` @${message['username']} : ${message['message']} ${time_formatted} <button onclick='hide(${message['message']})'>Hide</button>`;
+    this_message.innerHTML = ` @${message['username']} : ${message['message']} ${time_formatted} <button id='hide' onclick='hide(${message['message']})'>Hide</button>`;
 
     // Append to channel list.
     var list = document.querySelector('#channel_messages');
